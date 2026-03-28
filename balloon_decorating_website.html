@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaJuanna's Decorating</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* =============================================
+     CSS CUSTOM PROPERTIES (Design Tokens)
+     ============================================= */
+  :root {
+    --pink:       #f4a7c3;
+    --pink-light: #fce8f3;
+    --pink-deep:  #e07aab;
+    --silver:     #c8c8d4;
+    --silver-light:#f0f0f5;
+    --purple:     #c9b8e8;
+    --cream:      #fdf8f5;
+    --charcoal:   #2d2d3a;
+    --text-body:  #4a4a5a;
+    --gold:       #c9a84c;
+
+    --font-display: 'Playfair Display', serif;
+    --font-body:    'DM Sans', sans-serif;
+
+    --radius-sm: 8px;
+    --radius-md: 20px;
+    --radius-lg: 40px;
+
+    --shadow-soft: 0 8px 40px rgba(244,167,195,0.18);
+    --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+  }
+
+  /* =============================================
+     RESET & BASE
+     ============================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--text-body);
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; display: block; }
+  a { text-decoration: none; color: inherit; }
+
+  /* =============================================
+     WIREFRAME PLANNING OVERLAY (Toggle)
+     ============================================= */
+  .wireframe-mode * {
+    outline: 2px dashed #f4a7c3 !important;
+    background: rgba(244,167,195,0.04) !important;
+  }
+  .wireframe-mode .wireframe-label {
+    display: block !important;
+  }
+  .wireframe-label {
+    display: none;
+    position: absolute;
+    top: 4px; left: 4px;
+    font-size: 10px;
+    background: var(--pink-deep);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    z-index: 999;
+    pointer-events: none;
+  }
+
+  /* =============================================
+     DEV TOOLBAR
+     ============================================= */
+  .dev-toolbar {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .dev-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 30px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .dev-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+  .dev-btn.wireframe { background: var(--purple); color: var(--charcoal); }
+  .dev-btn.plan      { background: var(--gold);   color: #fff; }
+
+  /* =============================================
+     PLANNING MODAL
+     ============================================= */
+  .plan-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(45,45,58,0.7);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  .plan-overlay.active { display: flex; }
+  .plan-modal {
+    background: #fff;
+    border-radius: var(--radius-md);
+    max-width: 860px;
+    width: 92%;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 40px;
+    position: relative;
+  }
+  .plan-modal h2 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--charcoal);
+    margin-bottom: 8px;
+  }
+  .plan-modal .subtitle { color: var(--pink-deep); margin-bottom: 28px; font-size: 14px; }
+  .plan-close {
+    position: absolute; top: 20px; right: 24px;
+    background: none; border: none;
+    font-size: 24px; cursor: pointer; color: var(--text-body);
+  }
+  .plan-section { margin-bottom: 32px; }
+  .plan-section h3 {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--pink-deep);
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--pink-light);
+    padding-bottom: 6px;
+  }
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .plan-card {
+    background: var(--pink-light);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    font-size: 13px;
+  }
+  .plan-card strong { display: block; color: var(--charcoal); margin-bottom: 4px; }
+  .plan-card code {
+    display: inline-block;
+    background: #fff;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    color: var(--pink-deep);
+    margin: 2px 2px 0 0;
+  }
+  .wireframe-diagram {
+    background: var(--silver-light);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--charcoal);
+    border: 1px dashed var(--silver);
+  }
+
+  /* =============================================
+     NAVIGATION
+     ============================================= */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: rgba(253,248,245,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(244,167,195,0.2);
+    padding: 0 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    transition: box-shadow 0.3s;
+  }
+  nav.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--charcoal);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-logo span { color: var(--pink-deep); }
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 32px;
+    align-items: center;
+  }
+  .nav-links a {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-body);
+    transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0; right: 100%;
+    height: 2px;
+    background: var(--pink-deep);
+    transition: right 0.3s;
+  }
+  .nav-links a:hover { color: var(--pink-deep); }
+  .nav-links a:hover::after { right: 0; }
+  .nav-cta {
+    background: var(--pink-deep);
+    color: #fff !important;
+    padding: 10px 22px;
+    border-radius: 30px;
+    transition: background 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--charcoal) !important; transform: translateY(-1px); }
+  .nav-cta::after { display: none !important; }
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+  .hamburger span {
+    width: 24px; height: 2px;
+    background: var(--charcoal);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  /* =============================================
+     HERO SECTION
+     ============================================= */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 100px 5% 60px;
+    gap: 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .blob1 { width: 500px; height: 500px; background: var(--pink); top: -100px; right: -100px; }
+  .blob2 { width: 350px; height: 350px; background: var(--purple); bottom: 0; left: -80px; }
+  .hero-text { position: relative; }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--pink-deep);
+    background: var(--pink-light);
+    padding: 6px 16px;
+    border-radius: 30px;
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .hero-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1.1;
+    color: var(--charcoal);
+    margin-bottom: 20px;
+  }
+  .hero-h1 em { color: var(--pink-deep); font-style: italic; }
+  .hero-desc {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 36px;
+    color: var(--text-body);
+  }
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--pink-deep);
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 15px;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 24px rgba(224,122,171,0.35);
+  }
+  .btn-primary:hover { background: var(--charcoal); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+  .btn-outline {
+    border: 2px solid var(--charcoal);
+    color: var(--charcoal);
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 15px;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--pink-deep); color: var(--pink-deep); background: var(--pink-light); }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--pink-light);
+  }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--charcoal);
+    font-weight: 700;
+  }
+  .stat-label { font-size: 13px; color: var(--text-body); }
+  .hero-gallery {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 14px;
+  }
+  .hero-img-card {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    aspect-ratio: 4/5;
+    background: var(--pink-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+  }
+  .hero-img-card.tall { grid-row: span 2; aspect-ratio: auto; min-height: 380px; }
+  .hero-img-card:hover { transform: scale(1.02); transition: transform 0.3s; }
+  .hero-img-card img { width: 100%; height: 100%; object-fit: cover; }
+  .display-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .img-badge {
+    position: absolute;
+    bottom: 12px; left: 12px;
+    background: rgba(255,255,255,0.92);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--charcoal);
+    backdrop-filter: blur(4px);
+  }
+
+  /* =============================================
+     SECTION SHARED
+     ============================================= */
+  section { padding: 80px 5%; }
+  .section-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--pink-deep);
+    background: var(--pink-light);
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    color: var(--charcoal);
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-body);
+    max-width: 560px;
+    margin-bottom: 48px;
+  }
+  .center { text-align: center; }
+  .center .section-sub { margin-left: auto; margin-right: auto; }
+
+  /* =============================================
+     ABOUT / PROBLEM SECTION
+     ============================================= */
+  #about {
+    background: var(--charcoal);
+    color: #fff;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    border-radius: var(--radius-lg);
+    margin: 0 3%;
+    padding: 80px 6%;
+  }
+  #about .section-tag { background: rgba(244,167,195,0.2); color: var(--pink); }
+  #about .section-title { color: #fff; }
+  #about .section-sub { color: rgba(255,255,255,0.7); max-width: 100%; }
+  .about-features { display: flex; flex-direction: column; gap: 20px; margin-top: 32px; }
+  .feature-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .feature-icon {
+    width: 44px; height: 44px;
+    background: rgba(244,167,195,0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .feature-text strong { display: block; color: #fff; margin-bottom: 4px; font-size: 15px; }
+  .feature-text p { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+  .about-visual {
+    position: relative;
+  }
+  .about-img-main {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: rgba(244,167,195,0.1);
+    height: 400px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5rem;
+  }
+  .about-img-main img { width: 100%; height: 100%; object-fit: cover; }
+  .about-float-card {
+    position: absolute;
+    bottom: -20px; left: -30px;
+    background: var(--pink-deep);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    padding: 18px 22px;
+    box-shadow: var(--shadow-soft);
+  }
+  .about-float-card .num {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  .about-float-card .lbl { font-size: 12px; opacity: 0.85; }
+
+  /* =============================================
+     SERVICES SECTION
+     ============================================= */
+  #services { background: var(--cream); }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+  .service-card {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 36px 28px;
+    border: 1px solid rgba(244,167,195,0.2);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pink), var(--purple));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-soft);
+    border-color: var(--pink);
+  }
+  .service-card:hover::before { opacity: 1; }
+  .service-emoji { font-size: 2.5rem; margin-bottom: 18px; }
+  .service-name {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--charcoal);
+    margin-bottom: 10px;
+  }
+  .service-desc { font-size: 14px; line-height: 1.65; color: var(--text-body); margin-bottom: 20px; }
+  .service-price {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--pink-deep);
+    border-top: 1px solid var(--pink-light);
+    padding-top: 14px;
+  }
+
+  /* =============================================
+     GALLERY / PORTFOLIO
+     ============================================= */
+  #gallery { background: var(--silver-light); }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    gap: 16px;
+  }
+  .gallery-item {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--pink-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.3s;
+  }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+  .gallery-item.display-feature {
+    min-height: 460px;
+  }
+  .gallery-item:hover { transform: scale(1.02); }
+  .gallery-item:hover .gallery-overlay { opacity: 1; }
+  .gallery-overlay {
+    position: absolute; inset: 0;
+    background: rgba(45,45,58,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .gallery-item.wide { grid-column: span 2; }
+  .gallery-item.tall { grid-row: span 2; }
+  .gallery-item { min-height: 200px; }
+  .gallery-item.tall { min-height: 420px; }
+
+  /* =============================================
+     TESTIMONIALS
+     ============================================= */
+  #testimonials { background: var(--cream); }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .testimonial-card {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 32px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .t-stars { color: var(--gold); font-size: 16px; letter-spacing: 2px; }
+  .t-text { font-size: 14px; line-height: 1.7; color: var(--text-body); font-style: italic; }
+  .t-author { display: flex; align-items: center; gap: 12px; margin-top: auto; }
+  .t-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--pink-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .t-name { font-weight: 500; color: var(--charcoal); font-size: 14px; }
+  .t-role { font-size: 12px; color: var(--text-body); }
+
+  /* =============================================
+     PRICING
+     ============================================= */
+  #pricing { background: var(--pink-light); }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .pricing-card {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 40px 32px;
+    border: 2px solid transparent;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .pricing-card.featured {
+    background: var(--charcoal);
+    color: #fff;
+    border-color: var(--pink-deep);
+    transform: scale(1.04);
+    box-shadow: 0 20px 60px rgba(45,45,58,0.25);
+  }
+  .pricing-card:not(.featured):hover { transform: translateY(-4px); box-shadow: var(--shadow-card); }
+  .pricing-tier {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--pink-deep);
+    margin-bottom: 12px;
+  }
+  .pricing-card.featured .pricing-tier { color: var(--pink); }
+  .pricing-name {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--charcoal);
+    margin-bottom: 8px;
+  }
+  .pricing-card.featured .pricing-name { color: #fff; }
+  .pricing-price {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+  .pricing-card.featured .pricing-price { color: #fff; }
+  .pricing-note { font-size: 13px; color: var(--text-body); margin-bottom: 28px; }
+  .pricing-card.featured .pricing-note { color: rgba(255,255,255,0.6); }
+  .pricing-divider { border: none; border-top: 1px solid var(--pink-light); margin-bottom: 24px; }
+  .pricing-card.featured .pricing-divider { border-color: rgba(255,255,255,0.15); }
+  .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .pricing-features li {
+    font-size: 14px;
+    display: flex;
+    gap: 10px;
+    color: var(--text-body);
+  }
+  .pricing-card.featured .pricing-features li { color: rgba(255,255,255,0.8); }
+  .pricing-features li .check { color: var(--pink-deep); font-weight: 700; }
+  .pricing-card.featured .pricing-features li .check { color: var(--pink); }
+  .btn-pricing {
+    display: block;
+    text-align: center;
+    padding: 14px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s;
+    background: var(--pink-light);
+    color: var(--charcoal);
+  }
+  .btn-pricing:hover { background: var(--pink-deep); color: #fff; }
+  .pricing-card.featured .btn-pricing {
+    background: var(--pink-deep);
+    color: #fff;
+  }
+  .pricing-card.featured .btn-pricing:hover { background: #fff; color: var(--charcoal); }
+
+  /* =============================================
+     CONTACT
+     ============================================= */
+  #contact {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .contact-info .section-sub { margin-bottom: 32px; }
+  .contact-items { display: flex; flex-direction: column; gap: 20px; }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+  }
+  .contact-item .icon {
+    width: 42px; height: 42px;
+    background: var(--pink-light);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .contact-item a { color: var(--pink-deep); }
+  .contact-form {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 40px;
+    box-shadow: var(--shadow-card);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .form-group label { font-size: 13px; font-weight: 500; color: var(--charcoal); }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 12px 16px;
+    border: 1.5px solid var(--silver-light);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--charcoal);
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    width: 100%;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--pink-deep);
+    box-shadow: 0 0 0 3px rgba(224,122,171,0.12);
+  }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+  .form-submit {
+    width: 100%;
+    padding: 15px;
+    background: var(--pink-deep);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 24px rgba(224,122,171,0.35);
+  }
+  .form-submit:hover { background: var(--charcoal); transform: translateY(-2px); }
+  .form-success {
+    display: none;
+    text-align: center;
+    padding: 32px;
+    color: var(--pink-deep);
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+  }
+
+  /* =============================================
+     FOOTER
+     ============================================= */
+  footer {
+    background: var(--charcoal);
+    color: rgba(255,255,255,0.7);
+    padding: 60px 5% 32px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 48px;
+  }
+  .footer-brand .nav-logo { margin-bottom: 14px; }
+  .footer-brand p { font-size: 13px; line-height: 1.7; }
+  .footer-col h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col ul li a { font-size: 13px; transition: color 0.2s; }
+  .footer-col ul li a:hover { color: var(--pink); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+  .social-links { display: flex; gap: 12px; }
+  .social-link {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transition: background 0.2s;
+  }
+  .social-link:hover { background: var(--pink-deep); }
+
+  /* =============================================
+     SCROLL ANIMATIONS
+     ============================================= */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: none;
+  }
+  .fade-in:nth-child(2) { transition-delay: 0.1s; }
+  .fade-in:nth-child(3) { transition-delay: 0.2s; }
+  .fade-in:nth-child(4) { transition-delay: 0.3s; }
+
+  /* =============================================
+     LIGHTBOX
+     ============================================= */
+  .lightbox {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 90vw; max-height: 85vh; border-radius: var(--radius-sm); }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 24px;
+    background: none; border: none;
+    color: #fff; font-size: 32px; cursor: pointer;
+  }
+
+  /* =============================================
+     RESPONSIVE
+     ============================================= */
+  @media (max-width: 900px) {
+    #hero { grid-template-columns: 1fr; padding-top: 90px; }
+    .hero-gallery { display: none; }
+    #about { grid-template-columns: 1fr; margin: 0; border-radius: 0; }
+    .testimonials-grid,
+    .pricing-grid { grid-template-columns: 1fr; }
+    .pricing-card.featured { transform: none; }
+    #contact { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; }
+    .gallery-item.wide { grid-column: span 1; }
+    .gallery-item.display-feature { min-height: 280px; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .nav-links.open {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 68px; left: 0; right: 0;
+      background: var(--cream);
+      padding: 24px 5%;
+      border-bottom: 1px solid var(--pink-light);
+      gap: 16px;
+      z-index: 999;
+    }
+    .form-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAVIGATION ============ -->
+<nav id="navbar">
+  <span class="wireframe-label">NAV</span>
+  <a href="#" class="nav-logo">🎈 Pops of <span>Joy</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact" class="nav-cta">Book Now</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section id="hero">
+  <span class="wireframe-label">HERO SECTION</span>
+  <div class="hero-bg-blob blob1"></div>
+  <div class="hero-bg-blob blob2"></div>
+
+  <div class="hero-text fade-in">
+    <div class="hero-eyebrow">🎀 Nashville and Surrounding Areas Decorative</div>
+    <h1 class="hero-h1">
+      Every Event Deserves a <em>Magical</em> Moment
+    </h1>
+    <p class="hero-desc">
+      From intimate birthdays to grand celebrations, we craft stunning installations and party decorations that make memories last forever. Serving Nashville & surrounding areas.
+    </p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">✨ Book Your Event</a>
+      <a href="#gallery" class="btn-outline">View Our Work</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">200+</div>
+        <div class="stat-label">Events Decorated</div>
+      </div>
+      <div>
+        <div class="stat-num">5★</div>
+        <div class="stat-label">Average Rating</div>
+      </div>
+      <div>
+        <div class="stat-num">3yr</div>
+        <div class="stat-label">In Business</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-gallery fade-in">
+    <div class="hero-img-card tall">
+      <img class="display-photo" src="IMG_1289.JPG" alt="Pink balloon garland over a fireplace" width="1200" height="1600" onerror="this.parentElement.innerHTML='🎈'">
+      <span class="img-badge">🎈 Garland Design</span>
+    </div>
+    <div class="hero-img-card">
+      <img class="display-photo" src="party1.jpg" alt="Kids smiling at a pink party table setup" width="1600" height="1200" onerror="this.parentElement.innerHTML='🎀'">
+    </div>
+    <div class="hero-img-card">
+      <img class="display-photo" src="butterfly.jpg" alt="Purple butterfly graphic artwork" width="900" height="1200" onerror="this.parentElement.innerHTML='🌸'">
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about">
+  <span class="wireframe-label">ABOUT / PROBLEM SECTION</span>
+  <div class="fade-in">
+    <div class="section-tag">Why Choose Us</div>
+    <h2 class="section-title">We Turn Ordinary Spaces Into Extraordinary Experiences</h2>
+    <p class="section-sub">Planning an event shouldn't be stressful. We handle every detail of your décor so you can focus on celebrating the people you love.</p>
+    <div class="about-features">
+      <div class="feature-row">
+        <div class="feature-icon">🎨</div>
+        <div class="feature-text">
+          <strong>Custom Color Palettes</strong>
+          <p>We match your theme perfectly — from soft pink & silver to bold jewel tones.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-icon">🚚</div>
+        <div class="feature-text">
+          <strong>Full Setup & Delivery</strong>
+          <p>We arrive, set up, and clean up. Zero hassle for you on your special day.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-text">
+          <strong>Quick Turnaround</strong>
+          <p>Rush orders available. We can often accommodate last-minute requests.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="about-visual fade-in">
+    <div class="about-img-main">
+      <img class="display-photo" src="selfie1.jpg" alt="Portrait photo of the decorator" width="1200" height="1200" onerror="this.parentElement.innerHTML='🎂'">
+    </div>
+    <div class="about-float-card">
+      <div class="num">100%</div>
+      <div class="lbl">Client Satisfaction</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section id="services">
+  <span class="wireframe-label">SERVICES SECTION</span>
+  <div class="center">
+    <div class="section-tag">Our Services</div>
+    <h2 class="section-title">What We Create For You</h2>
+    <p class="section-sub">Handcrafted balloon art for every occasion. Each design is custom-built to match your event's vision and space.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card fade-in">
+      <div class="service-emoji">🎈</div>
+      <h3 class="service-name">Balloon Bouquets</h3>
+      <p class="service-desc">Classic tabletop bouquets featuring foil and latex balloons. Perfect for birthdays, graduations, and any celebration. Mix of 5–15 balloons in your colors.</p>
+      <div class="service-price">Starting at $35</div>
+    </div>
+    <div class="service-card fade-in">
+      <div class="service-emoji">🌈</div>
+      <h3 class="service-name">Balloon Garlands</h3>
+      <p class="service-desc">Lush, organic-style garlands that drape beautifully over dessert tables, mantels, or entryways. Our most popular choice for birthdays & baby showers.</p>
+      <div class="service-price">Starting at $85</div>
+    </div>
+    <div class="service-card fade-in">
+      <div class="service-emoji">🏛️</div>
+      <h3 class="service-name">Balloon Arches</h3>
+      <p class="service-desc">Floor-to-ceiling statement arches for event entrances, photo backdrops, and grand celebrations. Available in organic, classic, and spiral styles.</p>
+      <div class="service-price">Starting at $150</div>
+    </div>
+    <div class="service-card fade-in">
+      <div class="service-emoji">🎪</div>
+      <h3 class="service-name">Full Event Décor</h3>
+      <p class="service-desc">Complete party transformation including arch, garlands, bouquets, table centerpieces, and custom signage. We handle everything so you just show up.</p>
+      <div class="service-price">Starting at $350</div>
+    </div>
+    <div class="service-card fade-in">
+      <div class="service-emoji">👶</div>
+      <h3 class="service-name">Baby Showers</h3>
+      <p class="service-desc">Delicate pastel designs for gender reveals, baby showers, and sip-and-sees. We specialize in soft, whimsical aesthetics perfect for welcoming new life.</p>
+      <div class="service-price">Starting at $120</div>
+    </div>
+    <div class="service-card fade-in">
+      <div class="service-emoji">💍</div>
+      <h3 class="service-name">Special Occasions</h3>
+      <p class="service-desc">Weddings, anniversaries, graduations, and corporate events. We scale to any venue size and can coordinate with your overall event team.</p>
+      <div class="service-price">Custom Quote</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section id="gallery">
+  <span class="wireframe-label">GALLERY / PORTFOLIO</span>
+  <div class="center" style="margin-bottom: 48px;">
+    <div class="section-tag">Our Portfolio</div>
+    <h2 class="section-title">Recent Creations</h2>
+    <p class="section-sub">Every balloon arrangement is crafted with love. Browse some of our favorite recent designs.</p>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item tall display-feature" onclick="openLightbox('IMG_1289.JPG')">
+      <img class="display-photo" src="IMG_1289.JPG" alt="Pink balloon garland styled over a fireplace" width="1200" height="1600" onerror="this.parentElement.innerHTML='🎈'">
+      <div class="gallery-overlay">View Full</div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox('party1.jpg')">
+      <img class="display-photo" src="party1.jpg" alt="Birthday party table with pink balloon centerpiece" width="1600" height="1200" onerror="this.parentElement.innerHTML='🎀'">
+      <div class="gallery-overlay">View Full</div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox('selfie1.jpg')">
+      <img class="display-photo" src="selfie1.jpg" alt="Portrait of the balloon decorator" width="1200" height="1200" onerror="this.parentElement.innerHTML='🎂'">
+      <div class="gallery-overlay">View Full</div>
+    </div>
+    <div class="gallery-item wide" onclick="openLightbox('butterfly.jpg')">
+      <img class="display-photo" src="butterfly.jpg" alt="Purple butterfly themed design" width="900" height="1200" onerror="this.parentElement.innerHTML='🌸'">
+      <div class="gallery-overlay">View Full</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section id="testimonials">
+  <span class="wireframe-label">CLIENT FEEDBACK / TESTIMONIALS</span>
+  <div class="center" style="margin-bottom: 48px;">
+    <div class="section-tag">Client Feedback</div>
+    <h2 class="section-title">What Our Clients Say</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card fade-in">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"Absolutely stunning! The pink and silver garland for my daughter's 6th birthday was even more beautiful than I imagined. Everyone kept asking who did the decorations!"</p>
+      <div class="t-author">
+        <div class="t-avatar">👩</div>
+        <div>
+          <div class="t-name">Jessica M.</div>
+          <div class="t-role">Birthday Mom, Nashville</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card fade-in">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"I reached out just 2 days before my baby shower and they pulled it off beautifully. Professional, affordable, and the setup was flawless. 10/10 would recommend!"</p>
+      <div class="t-author">
+        <div class="t-avatar">🤰</div>
+        <div>
+          <div class="t-name">Amanda R.</div>
+          <div class="t-role">Baby Shower, Brentwood</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card fade-in">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"Used Pops of Joy for our company appreciation event. The balloon arch at the entrance was a showstopper. Our employees loved it and it photographed beautifully."</p>
+      <div class="t-author">
+        <div class="t-avatar">👩‍💼</div>
+        <div>
+          <div class="t-name">Carla T.</div>
+          <div class="t-role">Corporate Event, Franklin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section id="pricing">
+  <span class="wireframe-label">PRICING / PLANS</span>
+  <div class="center" style="margin-bottom: 48px;">
+    <div class="section-tag">Pricing</div>
+    <h2 class="section-title">Simple, Transparent Pricing</h2>
+    <p class="section-sub">Choose the package that fits your celebration. All packages include delivery within 20 miles of Nashville.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card fade-in">
+      <div class="pricing-tier">Starter</div>
+      <div class="pricing-name">Sweet</div>
+      <div class="pricing-price">$85</div>
+      <div class="pricing-note">Perfect for small gatherings</div>
+      <hr class="pricing-divider">
+      <ul class="pricing-features">
+        <li><span class="check">✓</span> 1 Balloon Bouquet (10 balloons)</li>
+        <li><span class="check">✓</span> 1 Mini Garland (3 ft)</li>
+        <li><span class="check">✓</span> Custom color palette</li>
+        <li><span class="check">✓</span> Delivery & setup</li>
+      </ul>
+      <a href="#contact" class="btn-pricing">Get Started</a>
+    </div>
+    <div class="pricing-card featured fade-in">
+      <div class="pricing-tier">⭐ Most Popular</div>
+      <div class="pricing-name">Celebration</div>
+      <div class="pricing-price">$220</div>
+      <div class="pricing-note">Our bestseller for birthdays</div>
+      <hr class="pricing-divider">
+      <ul class="pricing-features">
+        <li><span class="check">✓</span> 2 Large Balloon Bouquets</li>
+        <li><span class="check">✓</span> Organic Garland (8 ft)</li>
+        <li><span class="check">✓</span> 1 Foil Number or Letter</li>
+        <li><span class="check">✓</span> Custom color palette</li>
+        <li><span class="check">✓</span> Delivery, setup & cleanup</li>
+        <li><span class="check">✓</span> 48-hr rush available</li>
+      </ul>
+      <a href="#contact" class="btn-pricing">Book This Package</a>
+    </div>
+    <div class="pricing-card fade-in">
+      <div class="pricing-tier">Premium</div>
+      <div class="pricing-name">Grand Event</div>
+      <div class="pricing-price">$450+</div>
+      <div class="pricing-note">Full venue transformation</div>
+      <hr class="pricing-divider">
+      <ul class="pricing-features">
+        <li><span class="check">✓</span> Balloon Arch (up to 12 ft)</li>
+        <li><span class="check">✓</span> 2 Organic Garlands (6 ft each)</li>
+        <li><span class="check">✓</span> 3 Balloon Bouquets</li>
+        <li><span class="check">✓</span> Custom signage balloon</li>
+        <li><span class="check">✓</span> Table centerpieces</li>
+        <li><span class="check">✓</span> Full setup & cleanup</li>
+      </ul>
+      <a href="#contact" class="btn-pricing">Request a Quote</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact">
+  <span class="wireframe-label">CONTACT / BOOKING FORM</span>
+  <div class="contact-info fade-in">
+    <div class="section-tag">Contact Us</div>
+    <h2 class="section-title">Let's Plan Your Perfect Celebration</h2>
+    <p class="section-sub">Fill out the form and we'll get back to you within 24 hours with availability and pricing details.</p>
+    <div class="contact-items">
+      <div class="contact-item">
+        <div class="icon">📍</div>
+        <div>Nashville, TN & Surrounding Areas<br><small style="color:var(--text-body)">Up to 40 miles from Downtown</small></div>
+      </div>
+      <div class="contact-item">
+        <div class="icon">📞</div>
+        <div><a href="tel:+16155550000">(615) 424-6397</a></div>
+      </div>
+      <div class="contact-item">
+        <div class="icon">📧</div>
+        <div><a href="mailto:hello@popsofjoy.com">hello@popsofjoy.com</a></div>
+      </div>
+      <div class="contact-item">
+        <div class="icon">📅</div>
+        <div>Mon–Sat: 9am–7pm<br><small style="color:var(--text-body)">Sunday by appointment</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-form fade-in">
+    <form id="bookingForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name *</label>
+          <input type="text" placeholder="Jane" required>
+        </div>
+        <div class="form-group">
+          <label>Last Name *</label>
+          <input type="text" placeholder="Smith" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" placeholder="jane@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" placeholder="(615) 555-1234">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Event Date *</label>
+          <input type="date" required>
+        </div>
+        <div class="form-group">
+          <label>Event Type *</label>
+          <select required>
+            <option value="">Select type...</option>
+            <option>Birthday Party</option>
+            <option>Baby Shower</option>
+            <option>Wedding</option>
+            <option>Corporate Event</option>
+            <option>Gender Reveal</option>
+            <option>Graduation</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Package Interest</label>
+        <select>
+          <option value="">Select package...</option>
+          <option>Sweet ($85)</option>
+          <option>Celebration ($220)</option>
+          <option>Grand Event ($450+)</option>
+          <option>Custom Quote</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tell Us About Your Event</label>
+        <textarea placeholder="Colors, theme, venue, guest count, any special requests..."></textarea>
+      </div>
+      <button type="submit" class="form-submit">✨ Send My Request</button>
+    </form>
+    <div class="form-success" id="formSuccess">
+      🎈 Thank you! We'll be in touch within 24 hours to confirm your booking.
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <span class="wireframe-label">FOOTER</span>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="color:#fff;">🎈 Pops of <span style="color:var(--pink);">Joy</span></div>
+      <p>Creating magical balloon art and party décor for celebrations across Nashville and Middle Tennessee. Every pop tells a story.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#services">Balloon Bouquets</a></li>
+        <li><a href="#services">Balloon Garlands</a></li>
+        <li><a href="#services">Balloon Arches</a></li>
+        <li><a href="#services">Full Event Décor</a></li>
+        <li><a href="#services">Baby Showers</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#gallery">Portfolio</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#testimonials">Reviews</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Areas We Serve</h4>
+      <ul>
+        <li><a href="#">Nashville</a></li>
+        <li><a href="#">Brentwood</a></li>
+        <li><a href="#">Franklin</a></li>
+        <li><a href="#">Murfreesboro</a></li>
+        <li><a href="#">Hendersonville</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Pops of Joy. All rights reserved.</span>
+    <div class="social-links">
+      <a href="#" class="social-link" title="Instagram">📸</a>
+      <a href="#" class="social-link" title="Facebook">👍</a>
+      <a href="#" class="social-link" title="TikTok">🎵</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ LIGHTBOX ============ -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="Gallery preview">
+</div>
+
+<!-- ============ DEV TOOLBAR ============ -->
+<div class="dev-toolbar">
+  <button class="dev-btn plan" onclick="togglePlan()">📋 Site Plan</button>
+  <button class="dev-btn wireframe" onclick="toggleWireframe()">⬜ Wireframe</button>
+</div>
+
+<!-- ============ PLANNING MODAL ============ -->
+<div class="plan-overlay" id="planOverlay">
+  <div class="plan-modal">
+    <button class="plan-close" onclick="togglePlan()">✕</button>
+    <h2>🗺️ Website Planning Guide</h2>
+    <p class="subtitle">A breakdown of every section, its purpose, and the HTML/CSS techniques used.</p>
+
+    <div class="plan-section">
+      <h3>📐 Wireframe Structure</h3>
+      <div class="wireframe-diagram">
+┌─────────────────────────────────────────────┐
+│  NAV  [ Logo ]  [ Links... ]  [ Book Now ]  │  ← Fixed, backdrop-blur
+├─────────────────────────────────────────────┤
+│  HERO  [ Headline + CTA ]  [ Photo Grid ]   │  ← CSS Grid, 2 columns
+│         [ Stats Row ]                        │
+├─────────────────────────────────────────────┤
+│  ABOUT  [ Problem text ]  [ Photo + Badge ] │  ← Dark BG, 2 columns
+├─────────────────────────────────────────────┤
+│  SERVICES  [ 6 Cards Grid ]                 │  ← auto-fit grid
+├─────────────────────────────────────────────┤
+│  GALLERY  [ Asymmetric Photo Grid ]         │  ← span + lightbox
+├─────────────────────────────────────────────┤
+│  TESTIMONIALS  [ 3 Cards ]                  │  ← equal columns
+├─────────────────────────────────────────────┤
+│  PRICING  [ 3 Cards, Center Featured ]      │  ← scale(1.04) featured
+├─────────────────────────────────────────────┤
+│  CONTACT  [ Info ]  [ Booking Form ]        │  ← 2 columns, form
+├─────────────────────────────────────────────┤
+│  FOOTER  [ Brand ]  [ 3 Link Cols ]         │  ← 4 column grid
+└─────────────────────────────────────────────┘
+      </div>
+    </div>
+
+    <div class="plan-section">
+      <h3>🎨 Design System</h3>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <strong>Colors</strong>
+          <code>--pink</code><code>--pink-deep</code><code>--silver</code><code>--purple</code><code>--charcoal</code><code>--gold</code>
+        </div>
+        <div class="plan-card">
+          <strong>Typography</strong>
+          <code>Playfair Display</code> for headings (elegant serif)<br>
+          <code>DM Sans</code> for body (clean, readable)
+        </div>
+        <div class="plan-card">
+          <strong>Spacing & Radius</strong>
+          <code>--radius-sm: 8px</code><code>--radius-md: 20px</code><code>--radius-lg: 40px</code>
+        </div>
+        <div class="plan-card">
+          <strong>Animations</strong>
+          <code>IntersectionObserver</code> for scroll fade-ins<br>
+          <code>CSS transitions</code> for hover states
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-section">
+      <h3>🏗️ Key HTML Concepts Used</h3>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <strong>Semantic HTML5</strong>
+          <code>&lt;nav&gt;</code><code>&lt;section&gt;</code><code>&lt;footer&gt;</code><code>&lt;h1-h3&gt;</code>
+        </div>
+        <div class="plan-card">
+          <strong>CSS Grid</strong>
+          For hero, gallery, footer, about, pricing — flexible 2-4 column layouts
+        </div>
+        <div class="plan-card">
+          <strong>CSS Custom Properties</strong>
+          All colors and spacing defined in <code>:root</code> for easy theming
+        </div>
+        <div class="plan-card">
+          <strong>Responsive Design</strong>
+          <code>@media (max-width: 900px)</code> stacks columns to single on mobile
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-section">
+      <h3>⚡ JavaScript Features</h3>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <strong>Scroll Observer</strong>
+          <code>IntersectionObserver</code> adds <code>.visible</code> class to trigger CSS fade-in animations
+        </div>
+        <div class="plan-card">
+          <strong>Nav Scroll Effect</strong>
+          Listens to <code>window.scroll</code> and adds <code>.scrolled</code> class for shadow
+        </div>
+        <div class="plan-card">
+          <strong>Lightbox</strong>
+          Click gallery image → show fullscreen overlay with the image src
+        </div>
+        <div class="plan-card">
+          <strong>Form Handling</strong>
+          On submit, hides form, shows success message (replace with backend/EmailJS)
+        </div>
+        <div class="plan-card">
+          <strong>Mobile Nav</strong>
+          Hamburger button toggles <code>.open</code> class on nav links
+        </div>
+        <div class="plan-card">
+          <strong>Wireframe Mode</strong>
+          Toggles a CSS class on <code>body</code> that outlines all elements for planning
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-section">
+      <h3>📋 Next Steps to Customize</h3>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <strong>1. Replace Images</strong>
+          Update <code>src</code> attributes with your actual hosted photo URLs
+        </div>
+        <div class="plan-card">
+          <strong>2. Business Info</strong>
+          Update phone, email, address, service areas in the Contact & Footer sections
+        </div>
+        <div class="plan-card">
+          <strong>3. Pricing</strong>
+          Edit the pricing card amounts and feature lists to match your real packages
+        </div>
+        <div class="plan-card">
+          <strong>4. Form Backend</strong>
+          Connect form to EmailJS, Formspree, or your own server to receive bookings
+        </div>
+        <div class="plan-card">
+          <strong>5. Social Links</strong>
+          Add real Instagram, Facebook, TikTok URLs in the footer social links
+        </div>
+        <div class="plan-card">
+          <strong>6. SEO</strong>
+          Add <code>&lt;meta description&gt;</code>, Open Graph tags, and submit to Google Search Console
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============ SCROLL ANIMATIONS ============
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // ============ NAV SCROLL SHADOW ============
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // ============ MOBILE NAV ============
+  document.getElementById('hamburger').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+  });
+
+  // ============ LIGHTBOX ============
+  function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').classList.add('active');
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+  }
+  document.getElementById('lightbox').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeLightbox();
+  });
+
+  // ============ FORM ============
+  document.getElementById('bookingForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+    // TODO: Add EmailJS or Formspree integration here
+  });
+
+  // ============ WIREFRAME TOGGLE ============
+  function toggleWireframe() {
+    document.body.classList.toggle('wireframe-mode');
+    const btn = document.querySelector('.dev-btn.wireframe');
+    btn.textContent = document.body.classList.contains('wireframe-mode') ? '✅ Exit Wireframe' : '⬜ Wireframe';
+  }
+
+  // ============ PLAN MODAL ============
+  function togglePlan() {
+    document.getElementById('planOverlay').classList.toggle('active');
+  }
+  document.getElementById('planOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) togglePlan();
+  });
+</script>
+</body>
+</html>
