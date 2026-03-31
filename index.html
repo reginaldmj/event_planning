@@ -46,29 +46,6 @@
   img { max-width: 100%; display: block; }
   a { text-decoration: none; color: inherit; }
 
-  /* =============================================
-     WIREFRAME PLANNING OVERLAY (Toggle)
-     ============================================= */
-  .wireframe-mode * {
-    outline: 2px dashed #f4a7c3 !important;
-    background: rgba(244,167,195,0.04) !important;
-  }
-  .wireframe-mode .wireframe-label {
-    display: block !important;
-  }
-  .wireframe-label {
-    display: none;
-    position: absolute;
-    top: 4px; left: 4px;
-    font-size: 10px;
-    background: var(--pink-deep);
-    color: #fff;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: monospace;
-    z-index: 999;
-    pointer-events: none;
-  }
 
   /* =============================================
      DEV TOOLBAR
@@ -93,83 +70,9 @@
     transition: transform 0.2s, box-shadow 0.2s;
   }
   .dev-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-  .dev-btn.wireframe { background: var(--purple); color: var(--charcoal); }
-  .dev-btn.plan      { background: var(--gold);   color: #fff; }
+  .dev-btn.model { background: var(--purple); color: var(--charcoal); }
+  .dev-btn.feature      { background: var(--gold);   color: #fff; }
 
-  /* =============================================
-     PLANNING MODAL
-     ============================================= */
-  .plan-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(45,45,58,0.7);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-  }
-  .plan-overlay.active { display: flex; }
-  .plan-modal {
-    background: #fff;
-    border-radius: var(--radius-md);
-    max-width: 860px;
-    width: 92%;
-    max-height: 88vh;
-    overflow-y: auto;
-    padding: 40px;
-    position: relative;
-  }
-  .plan-modal h2 {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    color: var(--charcoal);
-    margin-bottom: 8px;
-  }
-  .plan-modal .subtitle { color: var(--pink-deep); margin-bottom: 28px; font-size: 14px; }
-  .plan-close {
-    position: absolute; top: 20px; right: 24px;
-    background: none; border: none;
-    font-size: 24px; cursor: pointer; color: var(--text-body);
-  }
-  .plan-section { margin-bottom: 32px; }
-  .plan-section h3 {
-    font-family: var(--font-display);
-    font-size: 1.2rem;
-    color: var(--pink-deep);
-    margin-bottom: 12px;
-    border-bottom: 1px solid var(--pink-light);
-    padding-bottom: 6px;
-  }
-  .plan-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-  }
-  .plan-card {
-    background: var(--pink-light);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    font-size: 13px;
-  }
-  .plan-card strong { display: block; color: var(--charcoal); margin-bottom: 4px; }
-  .plan-card code {
-    display: inline-block;
-    background: #fff;
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-size: 11px;
-    color: var(--pink-deep);
-    margin: 2px 2px 0 0;
-  }
-  .wireframe-diagram {
-    background: var(--silver-light);
-    border-radius: var(--radius-sm);
-    padding: 20px;
-    font-family: monospace;
-    font-size: 12px;
-    line-height: 1.8;
-    color: var(--charcoal);
-    border: 1px dashed var(--silver);
-  }
 
   /* =============================================
      NAVIGATION
@@ -880,7 +783,7 @@
 
 <!-- ============ NAVIGATION ============ -->
 <nav id="navbar">
-  <span class="wireframe-label">NAV</span>
+  <span class="model-label"></span>
   <a href="#" class="nav-logo">🎈 Pops of <span>Joy</span></a>
   <ul class="nav-links" id="navLinks">
     <li><a href="#about">About</a></li>
@@ -896,9 +799,7 @@
 
 <!-- ============ HERO ============ -->
 <section id="hero">
-  <span class="wireframe-label">HERO SECTION</span>
-  <div class="hero-bg-blob blob1"></div>
-  <div class="hero-bg-blob blob2"></div>
+
 
   <div class="hero-text fade-in">
     <div class="hero-eyebrow">🎀 Nashville and Surrounding Areas Decorative</div>
@@ -944,7 +845,7 @@
 
 <!-- ============ ABOUT ============ -->
 <section id="about">
-  <span class="wireframe-label">ABOUT / PROBLEM SECTION</span>
+  <span class="model-label">ABOUT / PROBLEM SECTION</span>
   <div class="fade-in">
     <div class="section-tag">Why Choose Us</div>
     <h2 class="section-title">We Turn Ordinary Spaces Into Extraordinary Experiences</h2>
@@ -986,7 +887,7 @@
 
 <!-- ============ SERVICES ============ -->
 <section id="services">
-  <span class="wireframe-label">SERVICES SECTION</span>
+  <span class="model-label">SERVICES SECTION</span>
   <div class="center">
     <div class="section-tag">Our Services</div>
     <h2 class="section-title">What We Create For You</h2>
@@ -1034,7 +935,7 @@
 
 <!-- ============ GALLERY ============ -->
 <section id="gallery">
-  <span class="wireframe-label">GALLERY / PORTFOLIO</span>
+  <span class="model-label">GALLERY / PORTFOLIO</span>
   <div class="center" style="margin-bottom: 48px;">
     <div class="section-tag">Our Portfolio</div>
     <h2 class="section-title">Recent Creations</h2>
@@ -1062,7 +963,7 @@
 
 <!-- ============ TESTIMONIALS ============ -->
 <section id="testimonials">
-  <span class="wireframe-label">CLIENT FEEDBACK / TESTIMONIALS</span>
+  <span class="model-label">CLIENT FEEDBACK / TESTIMONIALS</span>
   <div class="center" style="margin-bottom: 48px;">
     <div class="section-tag">Client Feedback</div>
     <h2 class="section-title">What Our Clients Say</h2>
@@ -1106,7 +1007,7 @@
 
 <!-- ============ PRICING ============ -->
 <section id="pricing">
-  <span class="wireframe-label">PRICING / PLANS</span>
+  <span class="model-label">PRICING / FEATURES</span>
   <div class="center" style="margin-bottom: 48px;">
     <div class="section-tag">Pricing</div>
     <h2 class="section-title">Simple, Transparent Pricing</h2>
@@ -1164,7 +1065,7 @@
 
 <!-- ============ CONTACT ============ -->
 <section id="contact">
-  <span class="wireframe-label">CONTACT / BOOKING FORM</span>
+  <span class="model-label">CONTACT / BOOKING FORM</span>
   <div class="contact-info fade-in">
     <div class="section-tag">Contact Us</div>
     <h2 class="section-title">Let's Plan Your Perfect Celebration</h2>
@@ -1254,7 +1155,7 @@
 
 <!-- ============ FOOTER ============ -->
 <footer>
-  <span class="wireframe-label">FOOTER</span>
+  <span class="model-label">FOOTER</span>
   <div class="footer-grid">
     <div class="footer-brand">
       <div class="nav-logo" style="color:#fff;">🎈 Pops of <span style="color:var(--pink);">Joy</span></div>
@@ -1354,19 +1255,19 @@
     // TODO: Add EmailJS or Formspree integration here
   });
 
-  // ============ WIREFRAME TOGGLE ============
-  function toggleWireframe() {
-    document.body.classList.toggle('wireframe-mode');
-    const btn = document.querySelector('.dev-btn.wireframe');
-    btn.textContent = document.body.classList.contains('wireframe-mode') ? '✅ Exit Wireframe' : '⬜ Wireframe';
+  // ============ MODEL TOGGLE ============
+  function toggleModel() {
+    document.body.classList.toggle('model-mode');
+    const btn = document.querySelector('.dev-btn.model');
+    btn.textContent = document.body.classList.contains('model-mode') ? '✅ Exit Model' : '⬜ Model';
   }
 
-  // ============ PLAN MODAL ============
-  function togglePlan() {
-    document.getElementById('planOverlay').classList.toggle('active');
+  // ============ FEATURE MODAL ============
+  function toggleFeature() {
+    document.getElementById('featureOverlay').classList.toggle('active');
   }
-  document.getElementById('planOverlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) togglePlan();
+  document.getElementById('featureOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) toggleFeature();
   });
 </script>
 </body>
